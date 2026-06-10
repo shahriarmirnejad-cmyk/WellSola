@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WellSola — Interactive Prototype</title>
+<style>
+  :root {
+    --p:   #534AB7; --pd: #3C3489; --pl: #EEEDFE; --pb: #CECBF6;
+    --tl:  #1D9E75; --tll:#E1F5EE;
+    --am:  #BA7517; --aml:#FAEEDA;
+    --re:  #C0392B; --rel:#FDECEA;
+    --dk:  #2C2A3E;
+    --bg:  #F9F8F5; --bg2:#F4F2EE;
+    --t:   #2C2C2A; --tm: #5F5E5A; --tl2:#888780;
+    --bd:  #DDDBD5;
+    --w:   #FFFFFF;
+    --r:   14px;
+    --shadow: 0 2px 12px rgba(0,0,0,.08);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { background:#E8E6F0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:24px 16px 48px; }
+
+  /* ── CHROME ── */
+  .shell { position:relative; width:375px; max-width:100%; }
+  .phone {
+    width:375px; max-width:100%;
+    border-radius:40px; overflow:hidden;
+    box-shadow:0 24px 60px rgba(44,42,62,.35), 0 0 0 1px rgba(255,255,255,.12);
+    background:var(--bg);
+  }
+  .statusbar {
+    background:var(--bg2); padding:12px 20px 8px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:12px; font-weight:600; color:var(--tm);
+  }
+  .statusbar .icons { display:flex; gap:6px; align-items:center; font-size:13px; }
+  .topbar {
+    background:var(--bg2); padding:10px 18px 12px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom: 1px solid var(--bd);
+  }
+  .logo { font-size:18px; font-weight:700; color:var(--pd); letter-spacing:-.3px; }
+  .avatar {
+    width:34px; height:34px; border-radius:50%;
+    background:var(--pl); border:1.5px solid var(--pb);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:600; color:var(--pd); cursor:pointer;
+  }
+  .navbar {
+    background:var(--w); border-top:1px solid var(--bd);
+    display:flex; justify-content:space-around; padding:10px 0 16px;
+  }
+  .nav-item {
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10px; color:var(--tl2); cursor:pointer; transition:color .2s;
+    user-select:none;
+  }
+  .nav-item.active { color:var(--p); }
+  .nav-item svg { width:22px; height:22px; }
+
+  /* ── SCREENS ── */
+  .screen { display:none; }
+  .screen.active { display:block; }
+  .body { padding:0 18px 24px; background:var(--bg); }
+
+  /* ── TYPOGRAPHY ── */
+  .page-title { font-size:20px; font-weight:600; color:var(--t); padding:16px 0 4px; }
+  .page-sub   { font-size:13px; color:var(--tl2); margin-bottom:14px; }
+  .section-label {
+    font-size:10px; font-weight:600; color:var(--tl2);
+    letter-spacing:.07em; text-transform:uppercase; margin:14px 0 8px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background:var(--w); border-radius:var(--r); border:1px solid var(--bd);
+    padding:14px; margin-bottom:10px; box-shadow:var(--shadow);
+  }
+  .card.purple-bg { background:var(--pl); border-color:var(--pb); }
+  .card.teal-bg   { background:var(--tll); border-color:#C0DD97; }
+  .card.amber-bg  { background:var(--aml); border-color:#FAC775; }
+  .card.red-bg    { background:var(--rel); border-color:#F5AAAA; }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display:block; width:100%; padding:15px;
+    background:var(--p); color:var(--w); border:none;
+    border-radius:var(--r); font-size:15px; font-weight:600;
+    cursor:pointer; text-align:center; transition:opacity .15s;
+    margin-bottom:8px;
+  }
+  .btn-primary:active { opacity:.85; }
+  .btn-primary.teal   { background:var(--tl); }
+  .btn-primary.red    { background:var(--re); }
+  .btn-secondary {
+    display:block; width:100%; padding:13px;
+    background:var(--w); color:var(--tm); border:1px solid var(--bd);
+    border-radius:var(--r); font-size:14px; cursor:pointer; text-align:center;
+    margin-bottom:8px;
+  }
+  .btn-link { text-align:center; font-size:12px; color:var(--tl2); cursor:pointer; margin-top:8px; }
+
+  /* ── COMPANION CARD ── */
+  .solla-card {
+    background:var(--pl); border-radius:var(--r); border:1px solid var(--pb);
+    padding:14px 14px; margin-bottom:14px;
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .solla-icon {
+    width:40px; height:40px; border-radius:50%; background:var(--p);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .solla-icon svg { width:20px; height:20px; }
+  .solla-name { font-size:11px; color:var(--p); font-weight:600; margin-bottom:3px; }
+  .solla-msg  { font-size:13px; color:#26215C; line-height:1.5; }
+
+  .solla-inline {
+    background:var(--pl); border-radius:12px; border:1px solid var(--pb);
+    padding:10px 12px; font-size:12px; color:#26215C; line-height:1.5;
+    display:flex; gap:8px; align-items:flex-start; margin-bottom:10px;
+  }
+  .solla-inline svg { width:15px; height:15px; flex-shrink:0; margin-top:1px; }
+
+  .ethics-banner {
+    background:var(--tll); border-radius:12px; border:1px solid #C0DD97;
+    padding:10px 12px; font-size:12px; color:#27500A; line-height:1.5;
+    display:flex; gap:8px; align-items:flex-start; margin-bottom:10px;
+  }
+  .ethics-banner svg { width:15px; height:15px; flex-shrink:0; color:var(--tl); margin-top:1px; }
+
+  /* ── HOME TILES ── */
+  .tile-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .tile {
+    background:var(--w); border-radius:var(--r); border:1px solid var(--bd);
+    padding:14px 12px; cursor:pointer; transition:background .15s;
+  }
+  .tile:active { background:var(--pl); }
+  .tile svg  { width:22px; height:22px; color:var(--p); margin-bottom:6px; }
+  .tile-label { font-size:13px; font-weight:600; color:var(--t); }
+  .tile-sub   { font-size:11px; color:var(--tl2); margin-top:2px; }
+  .badge {
+    display:inline-block; font-size:10px; font-weight:600;
+    border-radius:6px; padding:2px 8px; margin-top:5px;
+  }
+  .badge.purple { background:var(--pl); color:var(--pd); }
+  .badge.amber  { background:var(--aml); color:#633806; }
+  .badge.teal   { background:var(--tll); color:#085041; }
+
+  /* ── PROGRESS ── */
+  .progress-bar { background:#E1EFE8; border-radius:6px; height:7px; margin-bottom:5px; overflow:hidden; }
+  .progress-fill { background:var(--tl); height:100%; border-radius:6px; transition:width .4s; }
+  .progress-label { font-size:11px; color:var(--tl); margin-bottom:14px; font-weight:500; }
+
+  /* ── MED CARDS ── */
+  .med-card {
+    background:var(--w); border-radius:var(--r); border:1px solid var(--bd);
+    padding:13px 14px; margin-bottom:10px; transition:opacity .3s;
+  }
+  .med-card.done { opacity:.5; }
+  .med-row { display:flex; align-items:center; gap:12px; }
+  .med-icon {
+    width:44px; height:44px; border-radius:12px;
+    background:var(--pl); display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .med-icon.done { background:var(--tll); }
+  .med-icon svg { width:22px; height:22px; color:var(--p); }
+  .med-icon.done svg { color:var(--tl); }
+  .med-info { flex:1; }
+  .med-name  { font-size:14px; font-weight:600; color:var(--t); }
+  .med-detail{ font-size:12px; color:var(--tl2); margin-top:2px; }
+  .med-time  { font-size:11px; font-weight:600; color:var(--p); background:var(--pl); border-radius:6px; padding:3px 8px; white-space:nowrap; }
+  .med-time.done { color:var(--tl); background:var(--tll); }
+  .med-actions { display:flex; gap:8px; margin-top:10px; }
+  .btn-taken  { flex:1; padding:11px 0; background:var(--p); color:var(--w); border:none; border-radius:12px; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn-later  { flex:1; padding:11px 0; background:var(--w); color:var(--tm); border:1px solid var(--bd); border-radius:12px; font-size:13px; cursor:pointer; }
+
+  /* ── MOOD ── */
+  .mood-header { padding:20px 0 12px; text-align:center; }
+  .mood-avatar { width:60px; height:60px; border-radius:50%; background:var(--p); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .mood-avatar svg { width:30px; height:30px; }
+  .mood-q { font-size:20px; font-weight:600; color:var(--t); margin-bottom:6px; }
+  .mood-sub { font-size:13px; color:var(--tl2); }
+  .mood-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:18px 0 16px; }
+  .mood-btn {
+    background:var(--w); border:1.5px solid var(--bd); border-radius:var(--r);
+    padding:16px 10px; text-align:center; cursor:pointer; transition:all .15s;
+  }
+  .mood-btn:hover, .mood-btn.selected { background:var(--pl); border-color:var(--p); }
+  .mood-emoji { font-size:28px; display:block; margin-bottom:6px; }
+  .mood-label { font-size:13px; font-weight:600; color:var(--pd); }
+  .mood-desc  { font-size:11px; color:var(--tl2); margin-top:2px; }
+
+  /* ── CHAT ── */
+  .chat-header {
+    background:var(--bg2); padding:10px 18px 12px;
+    display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--bd);
+  }
+  .chat-avatar { width:38px; height:38px; border-radius:50%; background:var(--p); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .chat-avatar svg { width:18px; height:18px; }
+  .chat-name { font-size:14px; font-weight:600; color:var(--t); }
+  .chat-status { font-size:11px; color:var(--tl); display:flex; align-items:center; gap:4px; }
+  .status-dot { width:6px; height:6px; border-radius:50%; background:var(--tl); display:inline-block; }
+  .chat-body { background:var(--bg); padding:14px 14px 8px; min-height:200px; max-height:300px; overflow-y:auto; }
+  .bubble-row { display:flex; margin-bottom:10px; }
+  .bubble-row.solla { align-items:flex-end; gap:7px; }
+  .bubble-row.user  { justify-content:flex-end; }
+  .bubble-icon { width:26px; height:26px; border-radius:50%; background:var(--p); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .bubble-icon svg { width:12px; height:12px; }
+  .bubble {
+    max-width:220px; border-radius:16px; padding:10px 13px;
+    font-size:13px; line-height:1.55;
+  }
+  .bubble.solla-msg { background:var(--w); border:1px solid var(--bd); color:var(--t); border-bottom-left-radius:4px; }
+  .bubble.user-msg  { background:var(--p); color:var(--w); border-bottom-right-radius:4px; }
+  .bubble-time { font-size:10px; color:#B4B2A9; margin-top:3px; text-align:right; }
+  .memory-card {
+    background:var(--w); border-radius:12px; border:1px solid var(--pb);
+    overflow:hidden; max-width:200px; margin:4px 0;
+  }
+  .memory-img { background:var(--pl); height:80px; display:flex; align-items:center; justify-content:center; }
+  .memory-img svg { width:32px; height:32px; color:var(--p); }
+  .memory-cap { padding:8px 10px; }
+  .memory-cap-title { font-size:12px; font-weight:600; color:var(--t); }
+  .memory-cap-sub   { font-size:11px; color:var(--tl2); }
+  .memory-actions { display:flex; gap:6px; padding:0 10px 9px; }
+  .mem-btn { flex:1; padding:7px 0; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; border:1px solid var(--bd); background:var(--w); color:var(--p); }
+  .quick-replies { display:flex; flex-wrap:wrap; gap:6px; padding:8px 14px 6px; }
+  .qr-btn { background:var(--w); border:1px solid var(--pb); border-radius:20px; padding:7px 14px; font-size:12px; color:var(--p); cursor:pointer; transition:background .15s; }
+  .qr-btn:hover { background:var(--pl); }
+  .chat-input-row { background:var(--w); border-top:1px solid var(--bd); padding:10px 14px; display:flex; gap:8px; align-items:center; }
+  .chat-input { flex:1; background:var(--bg2); border:1px solid var(--bd); border-radius:20px; padding:9px 14px; font-size:13px; color:var(--tl2); outline:none; font-family:inherit; }
+  .mic-btn { width:38px; height:38px; border-radius:50%; background:var(--p); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .mic-btn svg { width:16px; height:16px; color:var(--w); }
+
+  /* ── CONTACTS ── */
+  .contact-card {
+    background:var(--w); border-radius:var(--r); border:1px solid var(--bd);
+    padding:12px 14px; margin-bottom:8px;
+    display:flex; align-items:center; gap:12px; cursor:pointer; transition:background .15s;
+  }
+  .contact-card:hover { background:var(--bg2); }
+  .contact-card.highlight { border-color:var(--pb); background:var(--pl); }
+  .contact-avatar { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; flex-shrink:0; }
+  .contact-info { flex:1; }
+  .contact-name { font-size:14px; font-weight:600; color:var(--t); }
+  .contact-role { font-size:12px; color:var(--tl2); }
+  .contact-actions { display:flex; gap:8px; }
+  .call-btn-sm { width:36px; height:36px; border-radius:50%; background:var(--p); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .call-btn-sm svg { width:16px; height:16px; color:var(--w); }
+  .msg-btn-sm  { width:36px; height:36px; border-radius:50%; background:var(--w); border:1px solid var(--bd); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .msg-btn-sm svg { width:16px; height:16px; color:var(--p); }
+
+  /* ── CALL SCREEN ── */
+  .call-body { background:var(--dk); padding:20px 20px 28px; text-align:center; }
+  .call-avatar { width:80px; height:80px; border-radius:50%; background:var(--p); display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:700; color:var(--w); margin:0 auto 14px; }
+  .call-name   { font-size:22px; font-weight:600; color:var(--w); }
+  .call-status { font-size:13px; color:#B4B2A9; margin-top:4px; }
+  .call-timer  { font-size:24px; font-weight:600; color:var(--w); margin-top:8px; letter-spacing:.05em; }
+  .call-hint {
+    background:rgba(83,74,183,.22); border-radius:12px; border:1px solid rgba(206,203,246,.25);
+    padding:10px 13px; font-size:12px; color:#CECBF6; line-height:1.5;
+    display:flex; gap:8px; align-items:flex-start; margin:16px 0 12px; text-align:left;
+  }
+  .call-hint svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .call-controls { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+  .call-ctrl { display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .call-ctrl-btn { width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,.1); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .call-ctrl-btn svg { width:22px; height:22px; color:var(--w); }
+  .call-ctrl-label { font-size:10px; color:#B4B2A9; }
+  .call-end { width:64px; height:64px; border-radius:50%; background:#A32D2D; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; margin:0 auto; }
+  .call-end svg { width:24px; height:24px; color:var(--w); }
+
+  /* ── EMERGENCY ── */
+  .emergency-fab {
+    position:sticky; bottom:10px; left:0; right:0; z-index:100;
+    display:flex; justify-content:center; padding:0 18px;
+    pointer-events:none;
+  }
+  .emergency-btn {
+    background:var(--re); color:var(--w); border:none;
+    border-radius:50px; padding:13px 22px;
+    font-size:14px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    box-shadow:0 4px 20px rgba(192,57,43,.45);
+    pointer-events:all; transition:transform .1s, box-shadow .1s;
+    animation: pulse-red 2.5s infinite;
+  }
+  .emergency-btn:active { transform:scale(.96); }
+  .emergency-btn svg { width:18px; height:18px; }
+  @keyframes pulse-red {
+    0%,100% { box-shadow:0 4px 20px rgba(192,57,43,.45); }
+    50% { box-shadow:0 4px 30px rgba(192,57,43,.75); }
+  }
+
+  /* ── EMERGENCY SCREEN ── */
+  .emergency-body { background:var(--re); padding:24px 20px 28px; text-align:center; min-height:400px; }
+  .emergency-icon { width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+  .emergency-icon svg { width:40px; height:40px; color:var(--w); }
+  .emergency-title { font-size:24px; font-weight:700; color:var(--w); margin-bottom:8px; }
+  .emergency-sub   { font-size:14px; color:rgba(255,255,255,.8); line-height:1.5; margin-bottom:24px; }
+  .emergency-calling {
+    background:rgba(255,255,255,.15); border-radius:var(--r);
+    padding:16px; margin-bottom:16px; color:var(--w);
+  }
+  .emergency-calling-name { font-size:20px; font-weight:700; margin-bottom:4px; }
+  .emergency-calling-sub  { font-size:13px; color:rgba(255,255,255,.75); }
+  .emergency-cancel { font-size:13px; color:rgba(255,255,255,.65); margin-top:12px; cursor:pointer; }
+
+  /* ── DAY SUMMARY ── */
+  .score-ring { width:90px; height:90px; margin:16px auto 6px; }
+  .score-sub  { font-size:11px; color:var(--tl2); text-align:center; margin-bottom:16px; }
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+  .stat-tile  { background:var(--w); border-radius:var(--r); border:1px solid var(--bd); padding:12px; }
+  .stat-val   { font-size:18px; font-weight:700; color:var(--t); }
+  .stat-label { font-size:11px; color:var(--tl2); margin-top:2px; }
+
+  /* ── WELLBEING ── */
+  .mood-week { display:flex; gap:6px; margin-bottom:14px; }
+  .mood-day  { flex:1; background:var(--w); border-radius:10px; border:1px solid var(--bd); padding:8px 4px; text-align:center; }
+  .mood-day.today { background:var(--pl); border-color:var(--pb); }
+  .mood-day-lbl { font-size:9px; color:var(--tl2); margin-bottom:4px; }
+  .mood-day.today .mood-day-lbl { color:var(--p); }
+  .mood-day-em  { font-size:18px; }
+
+  /* ── MUSIC ── */
+  .now-playing { background:var(--dk); border-radius:var(--r); padding:16px; margin-bottom:12px; text-align:center; }
+  .np-now  { font-size:10px; color:#7F77DD; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+  .np-title{ font-size:15px; font-weight:600; color:var(--w); margin-bottom:2px; }
+  .np-artist{ font-size:12px; color:#B4B2A9; margin-bottom:14px; }
+  .np-bar  { background:rgba(255,255,255,.15); border-radius:4px; height:4px; margin-bottom:6px; }
+  .np-fill { background:var(--p); height:100%; border-radius:4px; transition:width .8s linear; }
+  .np-times{ display:flex; justify-content:space-between; font-size:10px; color:#888780; margin-bottom:12px; }
+  .np-ctrls{ display:flex; justify-content:center; align-items:center; gap:20px; }
+  .np-btn  { background:none; border:none; cursor:pointer; color:#B4B2A9; display:flex; }
+  .np-btn svg { width:22px; height:22px; }
+  .np-play { width:46px; height:46px; border-radius:50%; background:var(--p); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .np-play svg { width:22px; height:22px; color:var(--w); }
+  .playlist-item {
+    background:var(--w); border-radius:12px; border:1px solid var(--bd);
+    padding:10px 12px; margin-bottom:7px;
+    display:flex; align-items:center; gap:10px; cursor:pointer; transition:background .15s;
+  }
+  .playlist-item.active { background:var(--pl); border-color:var(--pb); }
+  .pl-num   { font-size:12px; color:var(--tl2); width:16px; text-align:center; }
+  .pl-title { font-size:13px; font-weight:600; color:var(--t); }
+  .pl-dur   { font-size:11px; color:var(--tl2); }
+
+  /* ── GOOD NIGHT ── */
+  .gn-body { background:var(--dk); padding:24px 20px 28px; text-align:center; }
+  .gn-avatar { width:68px; height:68px; border-radius:50%; background:var(--p); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .gn-avatar svg { width:32px; height:32px; color:var(--w); }
+  .gn-msg  { font-size:18px; font-weight:600; color:var(--w); margin-bottom:8px; }
+  .gn-sub  { font-size:13px; color:#B4B2A9; line-height:1.55; margin-bottom:20px; }
+  .gn-tomorrow { background:rgba(83,74,183,.25); border-radius:12px; border:1px solid rgba(206,203,246,.2); padding:12px 14px; font-size:12px; color:#CECBF6; line-height:1.55; margin-bottom:16px; text-align:left; }
+  .gn-tomorrow-lbl { font-size:10px; font-weight:700; color:#7F77DD; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+  .gn-nudge { background:rgba(255,255,255,.06); border-radius:12px; border:1px solid rgba(255,255,255,.08); padding:10px 13px; font-size:12px; color:#B4B2A9; line-height:1.55; margin-bottom:16px; text-align:left; display:flex; gap:8px; }
+  .gn-nudge svg { width:14px; height:14px; color:#7F77DD; flex-shrink:0; margin-top:1px; }
+
+  /* ── MSG DRAFT ── */
+  .draft-label { font-size:10px; font-weight:600; color:var(--tl2); letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+  .draft-bubble { background:var(--w); border-radius:var(--r); border:1px solid var(--pb); padding:14px; font-size:13px; color:var(--t); line-height:1.6; margin-bottom:12px; cursor:text; }
+  .draft-actions { display:flex; gap:8px; margin-bottom:12px; }
+  .draft-btn { flex:1; padding:9px 0; border-radius:10px; border:1px solid var(--bd); background:var(--w); font-size:12px; color:var(--p); cursor:pointer; font-weight:600; }
+
+  /* ── REORDER ── */
+  .qty-row { display:flex; align-items:center; gap:10px; margin:8px 0; }
+  .qty-btn { width:34px; height:34px; border-radius:8px; border:1px solid var(--bd); background:var(--bg2); font-size:20px; color:var(--t); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .qty-val { font-size:17px; font-weight:600; color:var(--t); min-width:30px; text-align:center; }
+  .qty-label { font-size:12px; color:var(--tl2); }
+  .delivery-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--tm); margin-top:6px; }
+  .delivery-row svg { width:15px; height:15px; color:var(--tl2); }
+
+  /* ── NAV GUIDE ── */
+  .guide {
+    width:375px; max-width:100%; margin-top:20px;
+    background:rgba(255,255,255,.12); border-radius:16px;
+    padding:16px 18px; color:rgba(255,255,255,.8); font-size:12px; line-height:1.6;
+  }
+  .guide strong { color:var(--w); }
+  .guide-title { font-size:14px; font-weight:700; color:var(--w); margin-bottom:8px; }
+
+  /* ── MISC ── */
+  .divider { height:1px; background:var(--bd); margin:12px 0; }
+  .row     { display:flex; align-items:center; gap:10px; }
+  .row-between { display:flex; justify-content:space-between; align-items:center; }
+  .back-btn { background:none; border:none; cursor:pointer; color:var(--p); display:flex; align-items:center; gap:4px; font-size:13px; font-weight:600; }
+  .back-btn svg { width:18px; height:18px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+<div class="phone" id="phone">
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 1 — HOME
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen active" id="s-home">
+    <div class="statusbar"><span id="clock">9:07</span><div class="icons">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar" onclick="goTo('s-wellbeing')">M</div></div>
+    <div class="body">
+      <div style="padding:16px 0 10px">
+        <div style="font-size:12px;color:var(--tl2);margin-bottom:3px">Tuesday, 9 June</div>
+        <div style="font-size:21px;font-weight:600;color:var(--t)">Good morning, Maria</div>
+        <div style="font-size:13px;color:var(--tl2);margin-top:3px">Here is your day at a glance.</div>
+      </div>
+      <div class="solla-card">
+        <div class="solla-icon"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div>
+        <div><div class="solla-name">Solla</div><div class="solla-msg">Good morning! How are you feeling today? I am here whenever you are ready.</div></div>
+      </div>
+      <div class="section-label">Today</div>
+      <div class="tile-grid">
+        <div class="tile" onclick="goTo('s-mood')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <div class="tile-label">Morning check-in</div>
+          <div class="badge purple">Start day</div>
+        </div>
+        <div class="tile" onclick="goTo('s-meds')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg>
+          <div class="tile-label">Medications</div>
+          <div class="badge amber">2 due</div>
+        </div>
+        <div class="tile" onclick="goTo('s-chat')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div class="tile-label">Chat</div>
+          <div class="badge purple">Ready</div>
+        </div>
+        <div class="tile" onclick="goTo('s-people')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.7 16.5z"/></svg>
+          <div class="tile-label">Call someone</div>
+          <div class="tile-sub">Anna's birthday</div>
+        </div>
+      </div>
+      <div class="tile" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="goTo('s-music')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--p)" stroke-width="2" style="width:22px;height:22px;flex-shrink:0"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <div><div class="tile-label">Relax with music</div><div class="tile-sub">Evening playlist ready</div></div>
+      </div>
+    </div>
+    <div class="emergency-fab"><button class="emergency-btn" onclick="goTo('s-emergency')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.7 16.5z"/></svg>
+      Emergency Call
+    </button></div>
+    <div style="height:14px"></div>
+    <div class="navbar">
+      <div class="nav-item active" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="goTo('s-meds')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg><span>Meds</span></div>
+      <div class="nav-item" onclick="goTo('s-chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></div>
+      <div class="nav-item" onclick="goTo('s-people')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>People</span></div>
+      <div class="nav-item" onclick="goTo('s-summary')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 13 12 9 14 3 8"/></svg><span>My Day</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 2 — MOOD
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-mood">
+    <div class="statusbar"><span id="clock2">9:08</span><div class="icons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg></div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar">M</div></div>
+    <div class="body">
+      <div class="mood-header">
+        <div class="mood-avatar"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div>
+        <div class="mood-q">How are you feeling this morning?</div>
+        <div class="mood-sub">Tap the one that feels right.</div>
+      </div>
+      <div class="mood-grid">
+        <div class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">😊</span><div class="mood-label">Good</div><div class="mood-desc">Cheerful</div></div>
+        <div class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">😐</span><div class="mood-label">Okay</div><div class="mood-desc">So-so</div></div>
+        <div class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">😔</span><div class="mood-label">Low</div><div class="mood-desc">A bit down</div></div>
+        <div class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">😴</span><div class="mood-label">Tired</div><div class="mood-desc">Need rest</div></div>
+      </div>
+      <button class="btn-primary" onclick="goTo('s-meds')">Continue</button>
+      <div class="btn-link" onclick="goTo('s-home')">Skip for now</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 3 — MEDICATIONS
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-meds">
+    <div class="statusbar"><span>9:12</span><div class="icons"></div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar">M</div></div>
+    <div class="body">
+      <div class="page-title">Medications</div>
+      <div class="page-sub">Tuesday, 9 June</div>
+      <div class="progress-bar"><div class="progress-fill" id="med-progress" style="width:33%"></div></div>
+      <div class="progress-label" id="med-progress-lbl">1 of 3 taken today</div>
+      <div class="med-card done" id="med1">
+        <div class="med-row"><div class="med-icon done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg></div><div class="med-info"><div class="med-name">Lisinopril 10 mg</div><div class="med-detail">1 tablet · with water</div></div><div class="med-time done">Taken ✓</div></div>
+      </div>
+      <div class="med-card" id="med2">
+        <div class="med-row"><div class="med-icon" id="med2-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg></div><div class="med-info"><div class="row-between"><div class="med-name">Metformin 500 mg</div><div class="med-time" id="med2-time">9:00 AM</div></div><div class="med-detail">1 tablet · after breakfast</div></div></div>
+        <div class="med-actions" id="med2-actions"><button class="btn-taken" onclick="markTaken()">Taken</button><button class="btn-later" onclick="goTo('s-low-stock')">Remind later</button></div>
+      </div>
+      <div class="med-card" id="med3">
+        <div class="med-row"><div class="med-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg></div><div class="med-info"><div class="row-between"><div class="med-name">Atorvastatin 20 mg</div><div class="med-time">8:00 PM</div></div><div class="med-detail">1 tablet · before bed</div></div></div>
+      </div>
+      <div class="solla-inline"><svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--p)"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg> Don't forget Metformin after breakfast, Maria. You are doing well today.</div>
+      <div class="solla-inline amber-bg" style="background:var(--aml);border-color:#FAC775;color:#633806;cursor:pointer" onclick="goTo('s-low-stock')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#BA7517"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span style="color:#633806">Metformin running low — 5 days remaining. Tap to reorder.</span>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg><span>Meds</span></div>
+      <div class="nav-item" onclick="goTo('s-chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></div>
+      <div class="nav-item" onclick="goTo('s-people')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>People</span></div>
+      <div class="nav-item" onclick="goTo('s-summary')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 13 12 9 14 3 8"/></svg><span>My Day</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 4 — LOW STOCK
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-low-stock">
+    <div class="statusbar"><span>12:04</span><div class="icons"></div></div>
+    <div class="topbar">
+      <button class="back-btn" onclick="goTo('s-meds')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+      <span class="logo">WellSola</span><div class="avatar">M</div>
+    </div>
+    <div class="body">
+      <div class="page-title">Running low</div>
+      <div class="page-sub">Solla noticed something.</div>
+      <div class="solla-inline">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--p)"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg>
+        You have about 5 days of Metformin left. Shall I help you order more?
+      </div>
+      <div class="card">
+        <div class="row-between" style="margin-bottom:10px">
+          <div><div style="font-size:14px;font-weight:600;color:var(--t)">Metformin 500 mg</div><div style="font-size:12px;color:var(--tl2)">~5 tablets remaining</div></div>
+          <span class="badge amber">Low stock</span>
+        </div>
+        <div class="divider"></div>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span class="qty-val" id="qty-val">60</span>
+          <span class="qty-label">tablets</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <div class="delivery-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Estimated delivery: 2–3 days</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;color:var(--tl2);margin-bottom:6px">Deliver to</div>
+        <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="var(--p)" stroke-width="2" style="width:16px;height:16px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span style="font-size:13px;font-weight:600;color:var(--t)">Hämeenkatu 12, Tampere</span></div>
+      </div>
+      <button class="btn-primary" onclick="goTo('s-meds')">Yes, order for me</button>
+      <div class="btn-link" onclick="goTo('s-meds')">No thanks, I will handle it</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 5 — CHAT
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-chat">
+    <div class="statusbar"><span>10:30</span><div class="icons"></div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar">M</div></div>
+    <div class="chat-header">
+      <div class="chat-avatar"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white;width:18px;height:18px"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div>
+      <div><div class="chat-name">Solla</div><div class="chat-status"><span class="status-dot"></span> Here with you</div></div>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="bubble-row solla">
+        <div class="bubble-icon"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white;width:12px;height:12px"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div>
+        <div><div class="bubble solla-msg">Good morning, Maria. You said you were feeling okay today. Would you like to talk about it?</div><div class="bubble-time">10:22</div></div>
+      </div>
+      <div class="bubble-row user"><div><div class="bubble user-msg">I miss my daughter. She lives far away.</div><div class="bubble-time">10:24</div></div></div>
+      <div class="bubble-row solla">
+        <div class="bubble-icon"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white;width:12px;height:12px"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div>
+        <div><div class="bubble solla-msg">That sounds hard. Missing someone you love is real and it matters. When did you last speak with her?</div><div class="bubble-time">10:24</div></div>
+      </div>
+      <div class="bubble-row solla">
+        <div class="bubble-icon" style="opacity:0"></div>
+        <div class="memory-card">
+          <div class="memory-img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px;height:32px;color:var(--p)"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          <div class="memory-cap"><div class="memory-cap-title">Summer visit, 2023</div><div class="memory-cap-sub">Anna and you in the garden</div></div>
+          <div class="memory-actions"><button class="mem-btn" onclick="addChatReply()">Tell me more</button><button class="mem-btn" onclick="goTo('s-people')">Call Anna</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="ethics-banner" style="margin:0 14px 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Solla encourages real connection. Want to video call Anna today?
+    </div>
+    <div class="quick-replies">
+      <button class="qr-btn" onclick="goTo('s-people')">Yes, call her</button>
+      <button class="qr-btn" onclick="addChatReply()">Maybe later</button>
+      <button class="qr-btn" onclick="addChatReply()">Keep talking</button>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" placeholder="Type or speak…" onkeydown="if(event.key==='Enter')sendChat(this)">
+      <button class="mic-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="goTo('s-meds')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg><span>Meds</span></div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></div>
+      <div class="nav-item" onclick="goTo('s-people')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>People</span></div>
+      <div class="nav-item" onclick="goTo('s-summary')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 13 12 9 14 3 8"/></svg><span>My Day</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 6 — WELL-BEING
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-wellbeing">
+    <div class="statusbar"><span>11:00</span><div class="icons"></div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar">M</div></div>
+    <div class="body">
+      <div class="page-title">Your well-being</div>
+      <div class="page-sub">Last 7 days</div>
+      <div class="mood-week">
+        <div class="mood-day"><div class="mood-day-lbl">Mon</div><div class="mood-day-em">😊</div></div>
+        <div class="mood-day"><div class="mood-day-lbl">Tue</div><div class="mood-day-em">😐</div></div>
+        <div class="mood-day"><div class="mood-day-lbl">Wed</div><div class="mood-day-em">😊</div></div>
+        <div class="mood-day"><div class="mood-day-lbl">Thu</div><div class="mood-day-em">😔</div></div>
+        <div class="mood-day"><div class="mood-day-lbl">Fri</div><div class="mood-day-em">😐</div></div>
+        <div class="mood-day"><div class="mood-day-lbl">Sat</div><div class="mood-day-em">😊</div></div>
+        <div class="mood-day today"><div class="mood-day-lbl">Today</div><div class="mood-day-em">😐</div></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="stat-val">7</div><div class="stat-label">Check-ins this week</div></div>
+        <div class="stat-tile"><div class="stat-val">94%</div><div class="stat-label">Medications taken</div></div>
+      </div>
+      <div class="card">
+        <div class="section-label">Solla's note</div>
+        <div style="font-size:13px;color:var(--t);line-height:1.55">You have been more active this week. Thursday felt harder — that is okay. You reached out and that matters.</div>
+      </div>
+      <div class="card purple-bg">
+        <div style="font-size:11px;font-weight:600;color:var(--p);margin-bottom:4px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Shared with care team
+        </div>
+        <div style="font-size:12px;color:#26215C;line-height:1.5">A weekly summary has been sent to Anna and your GP. Tap to review what was shared.</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="goTo('s-meds')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg><span>Meds</span></div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></div>
+      <div class="nav-item" onclick="goTo('s-people')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>People</span></div>
+      <div class="nav-item" onclick="goTo('s-summary')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 13 12 9 14 3 8"/></svg><span>My Day</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 7 — PEOPLE
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-people">
+    <div class="statusbar"><span>2:15 PM</span><div class="icons"></div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar">M</div></div>
+    <div class="body">
+      <div class="page-title">People</div>
+      <div class="page-sub">Your closest contacts</div>
+      <div class="solla-inline">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--p)"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg>
+        It's Anna's birthday today. Would you like to call or send her a message?
+      </div>
+      <div class="contact-card highlight">
+        <div class="contact-avatar" style="background:var(--pl);color:var(--pd)">A</div>
+        <div class="contact-info">
+          <div class="contact-name">Anna</div>
+          <div class="contact-role">Daughter · Helsinki</div>
+          <span class="badge amber" style="margin-top:5px">Birthday today 🎂</span>
+        </div>
+        <div class="contact-actions">
+          <button class="msg-btn-sm" onclick="goTo('s-msg-draft')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+          <button class="call-btn-sm" onclick="goTo('s-call')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.7 16.5z"/></svg></button>
+        </div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-avatar" style="background:#E1F5EE;color:#085041">P</div>
+        <div class="contact-info"><div class="contact-name">Dr. Peltonen</div><div class="contact-role">GP · Tampere Health Centre</div></div>
+        <div class="contact-actions"><button class="call-btn-sm" onclick="goTo('s-call')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.7 16.5z"/></svg></button></div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-avatar" style="background:var(--aml);color:#412402">T</div>
+        <div class="contact-info"><div class="contact-name">Tuula</div><div class="contact-role">Friend · Tampere</div></div>
+        <div class="contact-actions">
+          <button class="msg-btn-sm" onclick="goTo('s-msg-draft')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+          <button class="call-btn-sm" onclick="goTo('s-call')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.7 16.5z"/></svg></button>
+        </div>
+      </div>
+      <button class="emergency-btn" style="width:100%;justify-content:center;margin-top:8px;border-radius:14px;animation:none" onclick="goTo('s-emergency')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.7 16.5z"/></svg>
+        Emergency Call
+      </button>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="goTo('s-meds')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg><span>Meds</span></div>
+      <div class="nav-item" onclick="goTo('s-chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>People</span></div>
+      <div class="nav-item" onclick="goTo('s-summary')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 13 12 9 14 3 8"/></svg><span>My Day</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 8 — ACTIVE CALL
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-call">
+    <div class="statusbar" style="background:var(--dk);color:#B4B2A9"><span>2:16 PM</span><div class="icons"></div></div>
+    <div style="background:var(--dk);padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:18px;font-weight:700;color:#CECBF6;letter-spacing:-.3px">WellSola</span>
+    </div>
+    <div class="call-body">
+      <div class="call-avatar">A</div>
+      <div class="call-name">Anna</div>
+      <div class="call-status">Video call · Connected</div>
+      <div class="call-timer" id="call-timer">00:00</div>
+      <div class="call-hint"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#CECBF6"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg> Solla is here if you need help. Tap the red button when you are ready to end the call.</div>
+      <div class="call-controls">
+        <div class="call-ctrl"><button class="call-ctrl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button><span class="call-ctrl-label">Mute</span></div>
+        <div class="call-ctrl"><button class="call-ctrl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button><span class="call-ctrl-label">Speaker</span></div>
+        <div class="call-ctrl"><button class="call-ctrl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button><span class="call-ctrl-label">Camera</span></div>
+      </div>
+      <button class="call-end" onclick="goTo('s-people')" id="end-call-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 5a10.94 10.94 0 0 0-1.91 2.06.5.5 0 0 0 .04.64l1.5 1.5a.5.5 0 0 0 .71 0A8 8 0 0 1 7 7.5M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 9 — MESSAGE DRAFT
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-msg-draft">
+    <div class="statusbar"><span>2:18 PM</span><div class="icons"></div></div>
+    <div class="topbar">
+      <button class="back-btn" onclick="goTo('s-people')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:34px;height:34px;border-radius:50%;background:#5DCAA5;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#04342C">A</div>
+        <div><div style="font-size:13px;font-weight:600;color:var(--t)">Anna</div><div style="font-size:11px;color:var(--tl2)">Birthday message</div></div>
+      </div>
+      <div style="width:34px"></div>
+    </div>
+    <div class="body">
+      <div class="draft-label">Solla wrote this for you</div>
+      <div class="draft-bubble" id="draft-text" contenteditable="false">Happy birthday, my dear Anna! I am so proud of you and miss you every day. I hope this year brings you so much joy. Sending you all my love. — Mum</div>
+      <div class="draft-actions">
+        <button class="draft-btn" onclick="rewriteDraft()">↻ Try again</button>
+        <button class="draft-btn" onclick="editDraft()">✎ Edit</button>
+      </div>
+      <div class="solla-inline">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--p)"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg>
+        Does this feel right? You can change any word before sending.
+      </div>
+      <button class="btn-primary" onclick="sendDraft()">Send to Anna</button>
+      <div class="btn-link" onclick="goTo('s-people')">Cancel</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 10 — EMERGENCY
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-emergency">
+    <div class="statusbar" style="background:var(--re);color:rgba(255,255,255,.8)"><span>2:20 PM</span><div class="icons"></div></div>
+    <div style="background:var(--re);padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:center">
+      <button class="back-btn" style="color:rgba(255,255,255,.7)" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Cancel</button>
+      <span style="font-size:16px;font-weight:700;color:white">Emergency</span>
+      <div style="width:60px"></div>
+    </div>
+    <div class="emergency-body">
+      <div class="emergency-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.7 16.5z"/></svg>
+      </div>
+      <div class="emergency-title">Emergency Call</div>
+      <div class="emergency-sub">Solla will call your emergency contact and alert your care team immediately.</div>
+
+      <div class="emergency-calling" id="em-calling">
+        <div class="emergency-calling-name">📞 Calling Anna…</div>
+        <div class="emergency-calling-sub">Your daughter will be notified right away</div>
+      </div>
+      <div style="background:rgba(255,255,255,.12);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;text-align:left">
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Also alerting</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.85);margin-bottom:4px">🏥 Tampere Health Centre — Dr. Peltonen</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.85)">📍 Your location is being shared</div>
+      </div>
+      <button class="btn-primary red" onclick="goTo('s-home')" style="background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.4)">
+        I'm okay — cancel emergency
+      </button>
+      <div class="emergency-cancel" onclick="goTo('s-home')">Return to home screen</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 11 — DAY SUMMARY
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-summary">
+    <div class="statusbar"><span>7:30 PM</span><div class="icons"></div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar">M</div></div>
+    <div class="body">
+      <div style="padding:16px 0 4px;text-align:center">
+        <div style="font-size:20px;font-weight:600;color:var(--t)">Your day, Maria</div>
+        <div style="font-size:13px;color:var(--tl2)">Tuesday, 9 June</div>
+      </div>
+      <div class="score-ring">
+        <svg viewBox="0 0 90 90" width="90" height="90">
+          <circle cx="45" cy="45" r="38" fill="none" stroke="var(--pl)" stroke-width="8"/>
+          <circle cx="45" cy="45" r="38" fill="none" stroke="var(--p)" stroke-width="8" stroke-dasharray="239" stroke-dashoffset="43" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+          <text x="45" y="51" text-anchor="middle" font-size="20" font-weight="700" fill="var(--p)" font-family="system-ui">82</text>
+        </svg>
+      </div>
+      <div class="score-sub">Today's well-being score</div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="stat-val">3 / 3</div><div class="stat-label">Medications taken</div></div>
+        <div class="stat-tile"><div class="stat-val">Okay 😐</div><div class="stat-label">Mood today</div></div>
+        <div class="stat-tile"><div class="stat-val">Anna</div><div class="stat-label">Called today</div></div>
+        <div class="stat-tile"><div class="stat-val">1 chat</div><div class="stat-label">With Solla</div></div>
+      </div>
+      <div class="solla-card">
+        <div class="solla-icon"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div>
+        <div><div class="solla-name">Solla</div><div class="solla-msg">You called Anna on her birthday — that was a lovely thing to do. All your medications are done. Rest well tonight.</div></div>
+      </div>
+      <div class="card">
+        <div class="section-label">Tomorrow</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--p)" stroke-width="2" style="width:15px;height:15px;flex-shrink:0"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg>
+          Lisinopril at 9:00 AM
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:var(--t)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="2" style="width:15px;height:15px;flex-shrink:0"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Metformin delivery arriving
+        </div>
+      </div>
+      <div class="ethics-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        You spoke with Anna today. Staying connected with people you love matters more than any app.
+      </div>
+      <button class="btn-primary" onclick="goTo('s-music')">Relax with music</button>
+      <button class="btn-secondary" onclick="goTo('s-goodnight')">Good night</button>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="goTo('s-meds')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg><span>Meds</span></div>
+      <div class="nav-item" onclick="goTo('s-chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></div>
+      <div class="nav-item" onclick="goTo('s-people')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>People</span></div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 13 12 9 14 3 8"/></svg><span>My Day</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 12 — MUSIC
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-music">
+    <div class="statusbar"><span>7:45 PM</span><div class="icons"></div></div>
+    <div class="topbar"><span class="logo">WellSola</span><div class="avatar">M</div></div>
+    <div class="body">
+      <div class="page-title">Relax</div>
+      <div class="page-sub">Wind down gently</div>
+      <div class="now-playing">
+        <div class="np-now">Now playing</div>
+        <div class="np-title" id="np-title">Clair de Lune</div>
+        <div class="np-artist" id="np-artist">Claude Debussy</div>
+        <div class="np-bar"><div class="np-fill" id="np-fill" style="width:38%"></div></div>
+        <div class="np-times"><span id="np-cur">2:17</span><span>5:02</span></div>
+        <div class="np-ctrls">
+          <button class="np-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+          <button class="np-play" id="np-play-btn" onclick="togglePlay()"><svg viewBox="0 0 24 24" fill="currentColor" id="np-play-icon"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
+          <button class="np-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+        </div>
+      </div>
+      <div class="section-label">Evening playlist</div>
+      <div class="playlist-item active" onclick="selectTrack(this,'Clair de Lune','Claude Debussy','5:02')">
+        <div class="pl-num"><svg viewBox="0 0 24 24" fill="none" stroke="var(--p)" stroke-width="2" style="width:14px;height:14px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></div>
+        <div><div class="pl-title">Clair de Lune</div><div class="pl-dur">Debussy · 5:02</div></div>
+      </div>
+      <div class="playlist-item" onclick="selectTrack(this,'Gymnopédie No.1','Erik Satie','3:04')">
+        <div class="pl-num" style="font-size:12px;color:var(--tl2)">2</div>
+        <div><div class="pl-title">Gymnopédie No.1</div><div class="pl-dur">Satie · 3:04</div></div>
+      </div>
+      <div class="playlist-item" onclick="selectTrack(this,'Raindrop Prelude','Frédéric Chopin','4:48')">
+        <div class="pl-num" style="font-size:12px;color:var(--tl2)">3</div>
+        <div><div class="pl-title">Raindrop Prelude</div><div class="pl-dur">Chopin · 4:48</div></div>
+      </div>
+      <button class="btn-secondary" style="margin-top:10px" onclick="goTo('s-goodnight')">Ready for good night</button>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="goTo('s-home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="goTo('s-meds')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22H6a2 2 0 0 1-2-2V8l6-6h8a2 2 0 0 1 2 2v4"/><path d="M14 2v6h6"/><path d="M16 12a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/><path d="M12 16h8"/></svg><span>Meds</span></div>
+      <div class="nav-item" onclick="goTo('s-chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></div>
+      <div class="nav-item" onclick="goTo('s-people')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>People</span></div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 13 12 9 14 3 8"/></svg><span>My Day</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCREEN 13 — GOOD NIGHT
+  ═════════════════════════════════════════════════════════ -->
+  <div class="screen" id="s-goodnight">
+    <div class="statusbar" style="background:var(--dk);color:#B4B2A9"><span>8:58 PM</span><div class="icons"></div></div>
+    <div style="background:var(--dk);padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:18px;font-weight:700;color:#CECBF6;letter-spacing:-.3px">WellSola</span>
+      <div style="width:34px;height:34px;border-radius:50%;background:rgba(83,74,183,.4);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#CECBF6;border:1.5px solid rgba(206,203,246,.3)">M</div>
+    </div>
+    <div class="gn-body">
+      <div class="gn-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      <div class="gn-msg">Good night, Maria.</div>
+      <div class="gn-sub">Today was a good day. You took care of yourself and connected with Anna. That is what matters.</div>
+      <div style="height:1px;background:rgba(255,255,255,.1);margin-bottom:16px"></div>
+      <div class="gn-tomorrow"><div class="gn-tomorrow-lbl">Tomorrow</div><div style="margin-bottom:4px">Lisinopril reminder at 9:00 AM</div><div>Metformin delivery expected</div></div>
+      <div class="gn-nudge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Consider calling Tuula tomorrow — you haven't spoken in a little while.</div>
+      <button class="btn-primary" id="gn-btn" onclick="goodnight()" style="background:var(--p)">Good night, Solla</button>
+      <div style="font-size:12px;color:#5F5E5A;text-align:center;margin-top:10px" id="gn-sub">I will be here again in the morning.</div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+</div><!-- /shell -->
+
+<!-- Navigation guide -->
+<div class="guide">
+  <div class="guide-title">🗺 WellSola Prototype — 13 Screens</div>
+  <strong>Morning:</strong> Home → Mood check-in → Medications → Low stock alert<br>
+  <strong>Daytime:</strong> Chat with Solla → Well-being insights → People → Call · Message draft<br>
+  <strong>Emergency:</strong> Red button on any screen → Emergency call<br>
+  <strong>Evening:</strong> Day summary → Relax &amp; music → Good night<br><br>
+  <strong>Try:</strong> Tap "Taken" on Metformin · Reply in chat · Rewrite the birthday message · Tap Emergency Call
+</div>
+
+<script>
+  // ── NAVIGATION ─────────────────────────────────────────────────────────────
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const s = document.getElementById(id);
+    if (s) { s.classList.add('active'); s.scrollTop = 0; document.querySelector('.phone').scrollTop = 0; }
+    if (id === 's-call') startCallTimer();
+    if (id === 's-emergency') startEmergency();
+  }
+
+  // ── CLOCK ──────────────────────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    ['clock','clock2'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = t; });
+  }
+  updateClock(); setInterval(updateClock, 30000);
+
+  // ── MOOD ───────────────────────────────────────────────────────────────────
+  function selectMood(el) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // ── MEDS ───────────────────────────────────────────────────────────────────
+  let medsTaken = 1;
+  function markTaken() {
+    const card = document.getElementById('med2');
+    const actions = document.getElementById('med2-actions');
+    const time = document.getElementById('med2-time');
+    const icon = document.getElementById('med2-icon');
+    if (card && !card.classList.contains('done')) {
+      card.classList.add('done');
+      if (actions) actions.remove();
+      if (time) { time.textContent = 'Taken ✓'; time.className = 'med-time done'; }
+      if (icon) icon.classList.add('done');
+      medsTaken = 2;
+      const bar = document.getElementById('med-progress');
+      const lbl = document.getElementById('med-progress-lbl');
+      if (bar) bar.style.width = '66%';
+      if (lbl) lbl.textContent = '2 of 3 taken today';
+    }
+  }
+
+  // ── QTY ────────────────────────────────────────────────────────────────────
+  let qty = 60;
+  function changeQty(d) {
+    qty = Math.max(30, Math.min(120, qty + d * 30));
+    const el = document.getElementById('qty-val');
+    if (el) el.textContent = qty;
+  }
+
+  // ── CHAT ───────────────────────────────────────────────────────────────────
+  const sollaReplies = [
+    "That sounds lovely. Tell me more about it.",
+    "I understand. How are you feeling about that?",
+    "It sounds like you have a lot of warmth in your heart for her.",
+    "You know, you could always give her a quick call. I can help you.",
+  ];
+  let replyIdx = 0;
+  function addChatReply() {
+    const body = document.getElementById('chat-body');
+    if (!body) return;
+    const userRow = document.createElement('div');
+    userRow.className = 'bubble-row user';
+    userRow.innerHTML = '<div><div class="bubble user-msg">Maybe I will call her later.</div><div class="bubble-time">10:31</div></div>';
+    body.appendChild(userRow);
+    setTimeout(() => {
+      const sollaRow = document.createElement('div');
+      sollaRow.className = 'bubble-row solla';
+      sollaRow.innerHTML = `<div class="bubble-icon"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white;width:12px;height:12px"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div><div><div class="bubble solla-msg">${sollaReplies[replyIdx % sollaReplies.length]}</div><div class="bubble-time">10:31</div></div>`;
+      body.appendChild(sollaRow);
+      body.scrollTop = body.scrollHeight;
+      replyIdx++;
+    }, 600);
+    body.scrollTop = body.scrollHeight;
+  }
+  function sendChat(input) {
+    const val = input.value.trim();
+    if (!val) return;
+    const body = document.getElementById('chat-body');
+    const userRow = document.createElement('div');
+    userRow.className = 'bubble-row user';
+    userRow.innerHTML = `<div><div class="bubble user-msg">${val}</div><div class="bubble-time">Now</div></div>`;
+    body.appendChild(userRow);
+    input.value = '';
+    setTimeout(() => {
+      const sollaRow = document.createElement('div');
+      sollaRow.className = 'bubble-row solla';
+      sollaRow.innerHTML = `<div class="bubble-icon"><svg viewBox="0 0 24 24" fill="currentColor" style="color:white;width:12px;height:12px"><path d="M12 2l2.09 6.26L20 10l-5 4.87L16.18 21 12 17.27 7.82 21 9 14.87 4 10l5.91-1.74L12 2z"/></svg></div><div><div class="bubble solla-msg">${sollaReplies[replyIdx % sollaReplies.length]}</div><div class="bubble-time">Now</div></div>`;
+      body.appendChild(sollaRow);
+      body.scrollTop = body.scrollHeight;
+      replyIdx++;
+    }, 700);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // ── MSG DRAFT ──────────────────────────────────────────────────────────────
+  const drafts = [
+    "Happy birthday, my dear Anna! I am so proud of you and miss you every day. I hope this year brings you so much joy. Sending you all my love. — Mum",
+    "Happy birthday, Anna! Thinking of you today and always. Wishing you a wonderful day filled with love. — Mum",
+    "My dearest Anna, happy birthday! You make my heart so full. I hope we can talk soon. Love you always. — Mum",
+  ];
+  let draftIdx = 0;
+  function rewriteDraft() {
+    draftIdx = (draftIdx + 1) % drafts.length;
+    const el = document.getElementById('draft-text');
+    if (el) { el.textContent = drafts[draftIdx]; el.style.borderColor = 'var(--pb)'; el.style.background = 'var(--w)'; el.style.color = 'var(--t)'; }
+  }
+  function editDraft() {
+    const el = document.getElementById('draft-text');
+    if (el) { el.contentEditable = 'true'; el.style.borderColor = 'var(--p)'; el.focus(); }
+  }
+  function sendDraft() {
+    const el = document.getElementById('draft-text');
+    if (el) { el.contentEditable = 'false'; el.textContent = '✓ Message sent to Anna.'; el.style.background = 'var(--tll)'; el.style.borderColor = '#C0DD97'; el.style.color = 'var(--tl)'; }
+    setTimeout(() => goTo('s-people'), 1200);
+  }
+
+  // ── CALL TIMER ─────────────────────────────────────────────────────────────
+  let callSecs = 0, callInterval = null;
+  function startCallTimer() {
+    callSecs = 0;
+    clearInterval(callInterval);
+    callInterval = setInterval(() => {
+      callSecs++;
+      const m = String(Math.floor(callSecs / 60)).padStart(2,'0');
+      const s = String(callSecs % 60).padStart(2,'0');
+      const el = document.getElementById('call-timer');
+      if (el) el.textContent = m + ':' + s;
+    }, 1000);
+  }
+  document.getElementById('end-call-btn').addEventListener('click', () => clearInterval(callInterval));
+
+  // ── EMERGENCY ──────────────────────────────────────────────────────────────
+  function startEmergency() {
+    const el = document.getElementById('em-calling');
+    if (!el) return;
+    const states = ['📞 Calling Anna…', '📞 Connecting…', '✅ Anna answered'];
+    let i = 0;
+    const iv = setInterval(() => {
+      i++;
+      if (i < states.length) { el.querySelector('.emergency-calling-name').textContent = states[i]; }
+      else clearInterval(iv);
+    }, 1800);
+  }
+
+  // ── MUSIC PLAYER ───────────────────────────────────────────────────────────
+  let playing = true, musicSecs = 137, musicInterval = null;
+  function startMusic() {
+    clearInterval(musicInterval);
+    musicInterval = setInterval(() => {
+      if (!playing) return;
+      musicSecs++;
+      const m = Math.floor(musicSecs / 60);
+      const s = String(musicSecs % 60).padStart(2,'0');
+      const el = document.getElementById('np-cur');
+      if (el) el.textContent = m + ':' + s;
+      const fill = document.getElementById('np-fill');
+      if (fill) fill.style.width = Math.min(100, (musicSecs / 302) * 100).toFixed(1) + '%';
+    }, 1000);
+  }
+  startMusic();
+  function togglePlay() {
+    playing = !playing;
+    const icon = document.getElementById('np-play-icon');
+    if (icon) icon.innerHTML = playing
+      ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+      : '<polygon points="5 3 19 12 5 21 5 3"/>';
+  }
+  function selectTrack(el, title, artist, dur) {
+    document.querySelectorAll('.playlist-item').forEach(i => {
+      i.classList.remove('active');
+      const num = i.querySelector('.pl-num');
+      const idx = Array.from(document.querySelectorAll('.playlist-item')).indexOf(i) + 1;
+      if (num) num.innerHTML = `<span style="font-size:12px;color:var(--tl2)">${idx}</span>`;
+    });
+    el.classList.add('active');
+    const num = el.querySelector('.pl-num');
+    if (num) num.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--p)" stroke-width="2" style="width:14px;height:14px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+    document.getElementById('np-title').textContent = title;
+    document.getElementById('np-artist').textContent = artist;
+    document.getElementById('np-fill').style.width = '0%';
+    document.getElementById('np-cur').textContent = '0:00';
+    musicSecs = 0; playing = true;
+    const icon = document.getElementById('np-play-icon');
+    if (icon) icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  }
+
+  // ── GOOD NIGHT ─────────────────────────────────────────────────────────────
+  function goodnight() {
+    const btn = document.getElementById('gn-btn');
+    const sub = document.getElementById('gn-sub');
+    if (btn) { btn.textContent = 'Sleep well, Maria. 🌙'; btn.style.background = '#3C3489'; btn.disabled = true; }
+    if (sub) sub.textContent = 'WellSola will be quiet until morning.';
+  }
+</script>
+</body>
+</html>
